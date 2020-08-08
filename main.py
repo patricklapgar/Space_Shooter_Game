@@ -84,12 +84,16 @@ def main():
     run = True
     # Frame rate
     FPS = 60
-    level = 1
+    level = 0
     lives = 5
     clock = pygame.time.Clock()
     main_font = pygame.font.SysFont("comicsans", 50)
     
     enemies = []
+    # Wave of enemies
+    wave_length = 5
+    # Enemy velocity
+    enemy_vel = 1
 
     player_velocity = 5 # Move 5 pixels
     
@@ -106,13 +110,23 @@ def main():
         WINDOW.blit(lives_label, (10, 10))
         WINDOW.blit(level_label, (WIDTH - level_label.get_width() - 10, 10))
         
+        for enemy in enemies:
+            enemy.draw(WINDOW)
+
         player.draw(WINDOW)
         
         pygame.display.update()
 
     while run:
         clock.tick(FPS)
-        redraw_window()
+        
+        if len(enemies) == 0:
+            level += 1
+            wave_length += 5
+            for i in range(wave_length):
+                enemy = Enemy(random.randrange(50, WIDTH - 100), random.randrange(-1500, -100), random.choice(["red", "blue", "green"]))
+                enemies.append(enemy)
+
         for event in pygame.event.get():
             # if event has occured, do something
             if event.type == pygame.QUIT:
@@ -129,5 +143,7 @@ def main():
             player.y -= player_velocity
         if keys[pygame.K_DOWN] and player.y + player_velocity + player.get_height() < HEIGHT: # Move down
             player.y += player_velocity
+        
+        redraw_window()
 
 main()
