@@ -44,6 +44,12 @@ class Ship:
     def draw(self, window):
         window.blit(self.ship_img, (self.x, self.y))
 
+    def get_width(self):
+        return self.ship_img.get_width()
+
+    def get_height(self):
+        return self.ship_img.get_height()
+
 # Player class inherits from Ship
 class Player(Ship):
     def __init__(self, x, y, health=100):
@@ -53,6 +59,25 @@ class Player(Ship):
         # Create a mask to create pixel-perfect collisions
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.max_health = health
+
+# Enemy ship class
+class Enemy(Ship):
+    # Dictionary that maps an enemy color to a ship
+    COLOR_MAP = {
+        "red": (RED_SHIP, RED_LASER),
+        "green": (GREEN_SHIP, GREEN_LASER),
+        "blue": (BLUE_SHIP, BLUE_LASER)
+    }
+
+    def __init__(self, x, y, color, health=100):
+        super().__init__(x, y, health)
+        self.ship_img, self.laser_img = self.COLOR_MAP[color]
+        # Create mask
+        self.mask = pygame.mask.from_surface(self.ship_img)
+
+    def move(self, vel):
+        self.y += vel
+
 
 # Create main event loop to handle all events
 def main():
@@ -64,6 +89,8 @@ def main():
     clock = pygame.time.Clock()
     main_font = pygame.font.SysFont("comicsans", 50)
     
+    enemies = []
+
     player_velocity = 5 # Move 5 pixels
     
     player = Player(300, 650)
@@ -96,11 +123,11 @@ def main():
         # Will look for arrow keys
         if keys[pygame.K_LEFT] and player.x - player_velocity > 0: # Move left
             player.x -= player_velocity
-        if keys[pygame.K_RIGHT] and player.x + player_velocity + 50 < WIDTH: # Move right
+        if keys[pygame.K_RIGHT] and player.x + player_velocity + player.get_width() < WIDTH: # Move right
             player.x += player_velocity
         if keys[pygame.K_UP] and player.y - player_velocity > 0: # Move up
             player.y -= player_velocity
-        if keys[pygame.K_DOWN] and player.y + player_velocity + 50 < HEIGHT: # Move down
+        if keys[pygame.K_DOWN] and player.y + player_velocity + player.get_height() < HEIGHT: # Move down
             player.y += player_velocity
 
 main()
