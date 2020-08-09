@@ -88,7 +88,9 @@ def main():
     lives = 5
     clock = pygame.time.Clock()
     main_font = pygame.font.SysFont("comicsans", 50)
-    
+    lost_font = pygame.font.SysFont("comicsans", 60)
+
+
     enemies = []
     # Wave of enemies
     wave_length = 5
@@ -98,6 +100,9 @@ def main():
     player_velocity = 5 # Move 5 pixels
     
     player = Player(300, 650)
+
+    lost = False
+    lost_timer = 0
 
     def redraw_window():
         # The blit method takes one of the images provided and draws it on the window
@@ -114,12 +119,28 @@ def main():
             enemy.draw(WINDOW)
 
         player.draw(WINDOW)
+
+        if lost:
+            lost_label = lost_font.render("Game Over... You Lost!!",1, (255, 255, 255))
+            WINDOW.blit(lost_label, (WIDTH/2 - lost_label.get_width()/2, 350))
         
         pygame.display.update()
 
     while run:
         clock.tick(FPS)
+        redraw_window()
+
+        if lives <= 0 or player.health <= 0:
+            lost = True
+            lost_timer += 1
         
+        # If the player has lost, and the lost timer is greater than 5 second then stop the game
+        if lost:
+            if lost_timer > FPS * 5:
+                run = False
+            else: 
+                continue
+
         # If all enemies are destroyed
         if len(enemies) == 0:
             # Increase level and number of enemies
@@ -146,9 +167,11 @@ def main():
         if keys[pygame.K_DOWN] and player.y + player_velocity + player.get_height() < HEIGHT: # Move down
             player.y += player_velocity
         
-        for enemy in enemies:
+        for enemy in enemies[:]:
             enemy.move(enemy_vel)
-
-        redraw_window()
+            # If enemy ships have move out of the screen, decrease the number of lives
+            if enemy.y + enemy.get_height() > HEIGHT:
+                lives -= 1
+                enemies.remove(enemy)
 
 main()
