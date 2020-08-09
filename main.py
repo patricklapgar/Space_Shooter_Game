@@ -120,7 +120,9 @@ def main():
     while run:
         clock.tick(FPS)
         
+        # If all enemies are destroyed
         if len(enemies) == 0:
+            # Increase level and number of enemies
             level += 1
             wave_length += 5
             for i in range(wave_length):
@@ -144,6 +146,9 @@ def main():
         if keys[pygame.K_DOWN] and player.y + player_velocity + player.get_height() < HEIGHT: # Move down
             player.y += player_velocity
         
+        for enemy in enemies:
+            enemy.move(enemy_vel)
+
         redraw_window()
 
 main()
