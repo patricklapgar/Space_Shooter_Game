@@ -27,8 +27,36 @@ YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"
 # Upload background image
 BACKGROUND = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))
 
+# Laser class
+class Laser:
+    def __init__(self, x, y, image):
+        self.x = x
+        self.y = y
+        self.image = image
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def draw(self, window):
+        window.blit(self.image, (self.x, self.y))
+
+    def move(self, vel):
+        self.y += vel
+
+    def off_screen(self, height):
+        return self.y <= height and self.y >= 0
+    
+    # Check to see if an object is colliding with the laser
+    def collision(self, obj):
+        return collide(obj, self)
+
+def collide(obj1, obj2):
+    offset_x = obj2.x - obj1.x
+    offset_y = obj2.y - obj1.y
+    # Return True or False depending on if two objects are overlapping each other
+    return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
+
 # Ship class
 class Ship:
+    COOLDOWN = 30
     # There are enemy ships and the player ship
     # This class will be abstract other classes will inherit from it
     def __init__(self, x, y, health=100):
@@ -43,6 +71,19 @@ class Ship:
 
     def draw(self, window):
         window.blit(self.ship_img, (self.x, self.y))
+        # TODO: Create draw laser functionality
+
+    def cooldown(self):
+        if self.cool_down_counter >= self.COOLDOWN:
+            self.cool_down_counter = 0
+        elif self.cool_down_counter > 0:
+            self.cool_down_counter += 1
+
+    def shoot(self):
+        if self.cool_down_counter == 0:
+            laser = Laser(x, y, self.laser_img)
+            self.lasers.append(laser)
+            self.cool_down_counter = 1
 
     def get_width(self):
         return self.ship_img.get_width()
@@ -166,7 +207,9 @@ def main():
             player.y -= player_velocity
         if keys[pygame.K_DOWN] and player.y + player_velocity + player.get_height() < HEIGHT: # Move down
             player.y += player_velocity
-        
+        if keys[pygame.K_SPACE]:
+            player.shoot()
+
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
             # If enemy ships have move out of the screen, decrease the number of lives
