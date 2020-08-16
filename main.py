@@ -42,7 +42,7 @@ class Laser:
         self.y += vel
 
     def off_screen(self, height):
-        return self.y <= height and self.y >= 0
+        return not (self.y <= height and self.y >= 0)
     
     # Check to see if an object is colliding with the laser
     def collision(self, obj):
@@ -56,7 +56,7 @@ def collide(obj1, obj2):
 
 # Ship class
 class Ship:
-    COOLDOWN = 30
+    COOLDOWN = 25
     # There are enemy ships and the player ship
     # This class will be abstract other classes will inherit from it
     def __init__(self, x, y, health=100):
@@ -92,7 +92,7 @@ class Ship:
 
     def shoot(self):
         if self.cool_down_counter == 0:
-            laser = Laser(x, y, self.laser_img)
+            laser = Laser(self.x, self.y, self.laser_img)
             self.lasers.append(laser)
             self.cool_down_counter = 1
 
@@ -165,6 +165,8 @@ def main():
     wave_length = 5
     # Enemy velocity
     enemy_vel = 1
+    # Laser velocity
+    laser_vel = 6
 
     player_velocity = 5 # Move 5 pixels
     
@@ -240,9 +242,12 @@ def main():
 
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
+            enemy.move_lasers(laser_vel, player)
             # If enemy ships have move out of the screen, decrease the number of lives
             if enemy.y + enemy.get_height() > HEIGHT:
                 lives -= 1
                 enemies.remove(enemy)
+        
+        player.move_lasers(-laser_vel, enemies)
 
 main()
