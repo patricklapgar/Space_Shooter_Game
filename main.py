@@ -71,7 +71,18 @@ class Ship:
 
     def draw(self, window):
         window.blit(self.ship_img, (self.x, self.y))
-        # TODO: Create draw laser functionality
+        for laser in self.lasers:
+            laser.draw(WINDOW)
+
+    def move_lasers(self, vel, obj):
+        self.cooldown()
+        for laser in self.lasers:
+            laser.move(vel)
+            if laser.off_screen(HEIGHT):
+                self.lasers.remove(laser)
+            elif laser.collision(obj):
+                obj.health -= 10
+                self.lasers.remove(laser)
 
     def cooldown(self):
         if self.cool_down_counter >= self.COOLDOWN:
@@ -100,6 +111,23 @@ class Player(Ship):
         # Create a mask to create pixel-perfect collisions
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.max_health = health
+    
+    def move_lasers(self, vel, objs):
+        self.cooldown()
+        for laser in self.lasers:
+            laser.move(vel)
+            # The lasers will move and if it is off screen
+            if laser.off_screen(HEIGHT):
+                # Delete laser shot
+                self.lasers.remove(laser)
+            else:
+                # Else, for every enemy ship (aka object) in the game
+                for obj in objs:
+                    # If the laser hits a ship
+                    if laser.collision(obj):
+                        # Remove the ship from the game
+                        objs.remove(obj)
+                        self.lasers.remove(laser)
 
 # Enemy ship class
 class Enemy(Ship):
