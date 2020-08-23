@@ -147,6 +147,13 @@ class Enemy(Ship):
     def move(self, vel):
         self.y += vel
 
+    # Offset the position where enemy shoots shoot their lasers
+    def shoot(self):
+        if self.cool_down_counter == 0:
+            laser = Laser(self.x-18, self.y, self.laser_img)
+            self.lasers.append(laser)
+            self.cool_down_counter = 1
+
 
 # Create main event loop to handle all events
 def main():
@@ -243,8 +250,15 @@ def main():
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
             enemy.move_lasers(laser_vel, player)
-            # If enemy ships have move out of the screen, decrease the number of lives
-            if enemy.y + enemy.get_height() > HEIGHT:
+            
+            if random.randrange(0, 2*60) == 1:
+                enemy.shoot()
+
+            if collide(enemy, player):
+                player.health -= 10
+                enemies.remove(enemy)
+            elif enemy.y + enemy.get_height() > HEIGHT:
+            # If enemy ships move out of the screen, decrease the number of lives
                 lives -= 1
                 enemies.remove(enemy)
         
