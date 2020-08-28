@@ -128,6 +128,14 @@ class Player(Ship):
                         # Remove the ship from the game
                         objs.remove(obj)
                         self.lasers.remove(laser)
+    def draw(self, window):
+        super().draw(window)
+        self.healthbar(window)
+
+    def healthbar(self, window):
+        # Draw a healthbar 10 pixels above the height of the player ship
+        pygame.draw.rect(window, (255, 0, 0), (self.x, self.y + self.ship.img.get_height() + 10, self.ship_img.get_width(), 10))
+        pygame.draw.rect(window, (0, 255, 0), (self.x, self.y + self.ship.img.get_height() + 10, self.ship_img.get_width() * ((self.health)/self.max_health), 10))
 
 # Enemy ship class
 class Enemy(Ship):
@@ -257,6 +265,11 @@ def main():
             if collide(enemy, player):
                 player.health -= 10
                 enemies.remove(enemy)
+            
+            if collide(enemy, player):
+                player.health -= 10
+                enemies.remove(enemy)
+
             elif enemy.y + enemy.get_height() > HEIGHT:
             # If enemy ships move out of the screen, decrease the number of lives
                 lives -= 1
