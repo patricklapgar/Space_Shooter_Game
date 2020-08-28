@@ -134,8 +134,8 @@ class Player(Ship):
 
     def healthbar(self, window):
         # Draw a healthbar 10 pixels above the height of the player ship
-        pygame.draw.rect(window, (255, 0, 0), (self.x, self.y + self.ship.img.get_height() + 10, self.ship_img.get_width(), 10))
-        pygame.draw.rect(window, (0, 255, 0), (self.x, self.y + self.ship.img.get_height() + 10, self.ship_img.get_width() * ((self.health)/self.max_health), 10))
+        pygame.draw.rect(window, (255,0,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
+        pygame.draw.rect(window, (0,255,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self.health/self.max_health), 10)) 
 
 # Enemy ship class
 class Enemy(Ship):
@@ -160,7 +160,7 @@ class Enemy(Ship):
         if self.cool_down_counter == 0:
             laser = Laser(self.x-18, self.y, self.laser_img)
             self.lasers.append(laser)
-            self.cool_down_counter = 1
+            self.cool_down_counter = 0.5
 
 
 # Create main event loop to handle all events
@@ -185,7 +185,7 @@ def main():
 
     player_velocity = 5 # Move 5 pixels
     
-    player = Player(300, 650)
+    player = Player(300, 630)
 
     lost = False
     lost_timer = 0
@@ -250,7 +250,7 @@ def main():
             player.x += player_velocity
         if keys[pygame.K_UP] and player.y - player_velocity > 0: # Move up
             player.y -= player_velocity
-        if keys[pygame.K_DOWN] and player.y + player_velocity + player.get_height() < HEIGHT: # Move down
+        if keys[pygame.K_DOWN] and player.y + player_velocity + player.get_height() + 15 < HEIGHT: # Move down
             player.y += player_velocity
         if keys[pygame.K_SPACE]:
             player.shoot()
@@ -265,10 +265,6 @@ def main():
             if collide(enemy, player):
                 player.health -= 10
                 enemies.remove(enemy)
-            
-            if collide(enemy, player):
-                player.health -= 10
-                enemies.remove(enemy)
 
             elif enemy.y + enemy.get_height() > HEIGHT:
             # If enemy ships move out of the screen, decrease the number of lives
@@ -277,4 +273,19 @@ def main():
         
         player.move_lasers(-laser_vel, enemies)
 
-main()
+def main_menu():
+    title_font = pygame.font.SysFont("comicsans", 70)
+    run = True
+    while run:
+        WINDOW.blit(BACKGROUND, (0, 0))
+        title_label = title_font.render("Press the mouse to begin... ", 1, (255, 255, 255))
+        WINDOW.blit(title_label, (WIDTH/2 - title_label.get_width()/2, 350))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                main()
+    pygame.quit()
+
+main_menu()
