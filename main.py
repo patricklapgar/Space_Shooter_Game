@@ -127,7 +127,9 @@ class Player(Ship):
                     if laser.collision(obj):
                         # Remove the ship from the game
                         objs.remove(obj)
-                        self.lasers.remove(laser)
+                        if self.laser in self.lasers:
+                            self.lasers.remove(laser)
+
     def draw(self, window):
         super().draw(window)
         self.healthbar(window)
@@ -160,7 +162,7 @@ class Enemy(Ship):
         if self.cool_down_counter == 0:
             laser = Laser(self.x-18, self.y, self.laser_img)
             self.lasers.append(laser)
-            self.cool_down_counter = 0.5
+            self.cool_down_counter = 0.5 
 
 
 # Create main event loop to handle all events
